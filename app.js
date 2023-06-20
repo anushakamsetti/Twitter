@@ -21,7 +21,7 @@ const initializeDBandServer = async () => {
     console.log(`DB Error: ${e.message}`);
   }
 };
-initializeDBAndServer();
+initializeDBandServer();
 // jwtToken Verification
 const authenticateToken = (request, response, next) => {
   const { tweet } = request.body;
@@ -170,16 +170,16 @@ app.get("/tweets/:tweetId", authenticateToken, async (request, response) => {
                  follower.follower_user_id = ${user_id}
                  ;`;
   const userFollowers = await db.all(userFollowsQuery);
-  
+
   if (
-      userFollowers.some(
-          (item) => item.following_user_id === tweetsResult.user_id 
-      )
+    userFollowers.some(
+      (item) => item.following_user_id === tweetsResult.user_id
+    )
   ) {
-      console.log(tweetsResult);
-      console.log("__________");
-      console.log(userFollowers);
-      const getTweetDetailsQuery = `
+    console.log(tweetsResult);
+    console.log("__________");
+    console.log(userFollowers);
+    const getTweetDetailsQuery = `
            SELECT 
               tweet,
               COUNT(DISTINCT(like.like_id)) AS likes,
@@ -193,20 +193,20 @@ app.get("/tweets/:tweetId", authenticateToken, async (request, response) => {
     const tweetDetails = await db.get(getTweetDetailsQuery);
     response.send(tweetDetails);
   } else {
-      response.status(401);
-      response.send("Invalid Request");
+    response.status(401);
+    response.send("Invalid Request");
   }
 });
-//Get Tweet Liked Users API-7 
+//Get Tweet Liked Users API-7
 app.get(
-    "/tweets/:tweetId/likes", 
-    authenticateToken, 
-    async (request, response) => {
-       const { tweetId } = request;
-       const { payload } = request;
-       const { user_id, name, username, gender } = payload;
-       console.log(name, tweetId);
-       const getLikedUsersQuery = `
+  "/tweets/:tweetId/likes",
+  authenticateToken,
+  async (request, response) => {
+    const { tweetId } = request;
+    const { payload } = request;
+    const { user_id, name, username, gender } = payload;
+    console.log(name, tweetId);
+    const getLikedUsersQuery = `
             SELECT 
                * 
                FROM 
@@ -215,33 +215,33 @@ app.get(
                WHERE 
                  tweet.tweet_id = ${tweetId} AND follower.follower_user_id = ${user_id}
             ;`;
-  const likedUsers = await db.all(getLikedUsersQuery);
-  console.log(likedUsers);
-  if (likedUsers.length !== 0) {
+    const likedUsers = await db.all(getLikedUsersQuery);
+    console.log(likedUsers);
+    if (likedUsers.length !== 0) {
       let likes = [];
       const getNamesArray = (likedUsers) => {
-          for (let item of likedUsers) {
-              likes.push(item.username);
-          }
+        for (let item of likedUsers) {
+          likes.push(item.username);
+        }
       };
       getNamesArray(likedUsers);
-      response.send{ likes };
-  } else {
-       response.status(401);
-       response.send("Invalid Request");
-     }
+      response.send(likes);
+    } else {
+      response.status(401);
+      response.send("Invalid Request");
+    }
   }
-};
+);
 //Get Tweet API-8
 app.get(
-    "/tweets/:tweetId/replies", 
-    authenticateToken, 
-    async (request, response) => {
-       const { tweetId } = request;
-       const { payload } = request;
-       const { user_id, name, username, gender } = payload;
-       console.log(name, tweetId);
-       const getRepliesUsersQuery = `
+  "/tweets/:tweetId/replies",
+  authenticateToken,
+  async (request, response) => {
+    const { tweetId } = request;
+    const { payload } = request;
+    const { user_id, name, username, gender } = payload;
+    console.log(name, tweetId);
+    const getRepliesUsersQuery = `
             SELECT 
                * 
                FROM 
@@ -250,28 +250,28 @@ app.get(
                WHERE 
                  tweet.tweet_id = ${tweetId} AND follower.follower_user_id = ${user_id}
             ;`;
-  const repliedUsers = await db.all(getRepliedUsersQuery);
-  console.log(repliedUsers);
-  if (repliedUsers.length !== 0) {
+    const repliedUsers = await db.all(getRepliedUsersQuery);
+    console.log(repliedUsers);
+    if (repliedUsers.length !== 0) {
       let replies = [];
       const getNamesArray = (repliedUsers) => {
-          for (let item of repliedUsers) {
-             let object = {
-                 name: item.name,
-                 reply: item.reply,
-             };
-             replies.push(object);
-          }
+        for (let item of repliedUsers) {
+          let object = {
+            name: item.name,
+            reply: item.reply,
+          };
+          replies.push(object);
+        }
       };
       getNamesArray(repliedUsers);
-      response.send{ replies };
-  } else {
-       response.status(401);
-       response.send("Invalid Request");
-     }
+      response.send(replies);
+    } else {
+      response.status(401);
+      response.send("Invalid Request");
+    }
   }
 );
-//Get All Tweet of User API-9 
+//Get All Tweet of User API-9
 app.get("/user/tweets", authenticateToken, async (request, response) => {
   const { payload } = request;
   const { user_id, name, username, gender } = payload;
@@ -289,12 +289,11 @@ app.get("/user/tweets", authenticateToken, async (request, response) => {
             GROUP BY
                 tweet.tweet_id 
                ;`;
-    const tweetsDetails = await db.get(getTweetsDetailsQuery);
-    response.send(tweetsDetails);
+  const tweetsDetails = await db.get(getTweetsDetailsQuery);
+  response.send(tweetsDetails);
 });
-//Get Post Tweet Api-10 
+//Get Post Tweet Api-10
 app.post("/user/tweets", authenticateToken, async (request, response) => {
-  const { tweet } = request;
   const { tweet } = request;
   const { payload } = request;
   const { user_id, name, username, gender } = payload;
@@ -307,8 +306,8 @@ app.post("/user/tweets", authenticateToken, async (request, response) => {
             ${user_id}
         )
     ;`;
-await db.run(postTweetQuery);
-response.send("Created a Tweet");
+  await db.run(postTweetQuery);
+  response.send("Created a Tweet");
 });
 //Delete Tweet Api-11
 app.delete("/tweets/:tweetId", authenticateToken, async (request, response) => {
@@ -318,19 +317,17 @@ app.delete("/tweets/:tweetId", authenticateToken, async (request, response) => {
   const selectUserQuery = `SELECT * FROM tweet WHERE tweet.user_id = ${user_id} AND tweet.tweet_id = ${tweetId};`;
   const tweetUser = await db.all(selectUserQuery);
   if (tweetUser.length !== 0) {
-      const deleteTweetQuery = `
+    const deleteTweetQuery = `
          DELETE FROM tweet 
          WHERE 
            tweet.user_id = ${user_id} AND tweet.tweet_id = ${tweetId}
            ;`;
-   await db.run(deleteTweetQuery);
-   response.send("Tweet Removed");
+    await db.run(deleteTweetQuery);
+    response.send("Tweet Removed");
   } else {
-      response.status(401);
-      response.send("Invalid Request");
+    response.status(401);
+    response.send("Invalid Request");
   }
-});     
+});
 
 module.exports = app;
-
-
