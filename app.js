@@ -54,7 +54,7 @@ app.post("/register", async (request, response) => {
   const selectUserQuery = `SELECT * FROM user WHERE username = '${username}';`;
   console.log(username, password, name, gender);
   const dbUser = await db.get(selectUserQuery);
-  if (dbUser === undefine) {
+  if (dbUser === undefined) {
     if (password.length < 6) {
       response.status(400);
       response.send("Password is too short");
@@ -86,7 +86,7 @@ app.post("/login", async (request, response) => {
   console.log(username, password);
   const dbUser = await db.get(selectUserQuery);
   console.log(dbUser);
-  if (dbUser === undefine) {
+  if (dbUser === undefined) {
     response.status(400);
     response.send("Invalid user");
   } else {
@@ -111,7 +111,7 @@ app.get("/user/tweets/feed", authenticateToken, async (request, response) => {
           tweet,
           date_time AS dateTime 
        FROM 
-         follower INNER JOIN tweet ON follower.follower_user_id = tweet.user_id INNER JOIN user ON user.user_id = follower.following_user_id
+         follower INNER JOIN tweet ON follower.following_user_id = tweet.user_id INNER JOIN user ON user.user_id = follower.following_user_id
         WHERE 
         follower.follower_user_id = ${user_id}
         ORDER BY 
@@ -169,7 +169,7 @@ app.get("/tweets/:tweetId", authenticateToken, async (request, response) => {
                WHERE 
                  follower.follower_user_id = ${user_id}
                  ;`;
-  const userFollowers = await db.all(userFollowsQuery);
+  const userFollowers = await db.all(userFollowersQuery);
 
   if (
     userFollowers.some(
@@ -225,7 +225,7 @@ app.get(
         }
       };
       getNamesArray(likedUsers);
-      response.send(likes);
+      response.send({ likes });
     } else {
       response.status(401);
       response.send("Invalid Request");
@@ -241,7 +241,7 @@ app.get(
     const { payload } = request;
     const { user_id, name, username, gender } = payload;
     console.log(name, tweetId);
-    const getRepliesUsersQuery = `
+    const getRepliedUsersQuery = `
             SELECT 
                * 
                FROM 
@@ -264,7 +264,7 @@ app.get(
         }
       };
       getNamesArray(repliedUsers);
-      response.send(replies);
+      response.send({ replies });
     } else {
       response.status(401);
       response.send("Invalid Request");
@@ -276,7 +276,7 @@ app.get("/user/tweets", authenticateToken, async (request, response) => {
   const { payload } = request;
   const { user_id, name, username, gender } = payload;
   console.log(name, user_id);
-  const getTweetDetailsQuery = `
+  const getTweetsDetailsQuery = `
            SELECT 
               tweet.tweet AS tweet,
               COUNT(DISTINCT(like.like_id)) AS likes,
@@ -289,7 +289,7 @@ app.get("/user/tweets", authenticateToken, async (request, response) => {
             GROUP BY
                 tweet.tweet_id 
                ;`;
-  const tweetsDetails = await db.get(getTweetsDetailsQuery);
+  const tweetsDetails = await db.all(getTweetsDetailsQuery);
   response.send(tweetsDetails);
 });
 //Get Post Tweet Api-10
